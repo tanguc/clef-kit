@@ -5,7 +5,7 @@
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/tanguc/tanstack-ai.git",
+    "url": "git+https://github.com/tanguc/clef-kit.git",
     "directory": "packages/ai-clef"
   },
   "type": "module",
