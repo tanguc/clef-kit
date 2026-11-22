@@ -1,0 +1,50 @@
+{
+  "name": "@stanguc/ai-clef",
+  "version": "0.1.0",
+  "description": "Self-hosted Clef adapter for TanStack AI: typed evaluate decisions against a SystemOne-compatible Clef server.",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/tanguc/tanstack-ai.git",
+    "directory": "packages/ai-clef"
+  },
+  "type": "module",
+  "module": "./dist/esm/index.js",
+  "types": "./dist/esm/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/esm/index.d.ts",
+      "import": "./dist/esm/index.js"
+    }
+  },
+  "files": [
+    "dist",
+    "src"
+  ],
+  "scripts": {
+    "build": "vite build",
+    "clean": "premove ./build ./dist",
+    "lint:fix": "oxlint src --type-aware --fix",
+    "test:build": "publint --strict",
+    "test:oxlint": "oxlint src --type-aware",
+    "test:lib": "vitest run",
+    "test:lib:dev": "pnpm test:lib --watch",
+    "test:types": "tsc"
+  },
+  "keywords": [
+    "ai",
+    "tanstack",
+    "clef",
+    "systemone",
+    "adapter",
+    "evaluate",
+    "decide"
+  ],
+  "peerDependencies": {
+    "@tanstack/ai": "workspace:^"
+  },
+  "devDependencies": {
+    "@tanstack/ai": "workspace:*",
+    "vite": "^8.3.8"
+  }
+}

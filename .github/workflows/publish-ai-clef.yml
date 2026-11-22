@@ -1,0 +1,33 @@
+name: publish ai-clef
+
+# publishes packages/ai-clef to JSR when an ai-clef-v<version> tag is pushed.
+# auth is GitHub OIDC: the JSR package must be linked to this repository
+on:
+  push:
+    tags: ['ai-clef-v*']
+
+permissions: {}
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write
+    defaults:
+      run:
+        working-directory: packages/ai-clef
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: denoland/setup-deno@22d081ff2d3a40755e97629de92e3bcbfa7cf2ed # v2.0.5
+        with:
+          deno-version: v2.x
+      - name: tag matches deno.json version
+        env:
+          TAG: ${{ github.ref_name }}
+        run: |
+          version=$(jq -r .version deno.json)
+          test "$TAG" = "ai-clef-v$version" || { echo "tag $TAG does not match version $version"; exit 1; }
+      - run: deno publish

@@ -1,0 +1,14 @@
+{
+  "name": "@stanguc/ai-clef",
+  "version": "0.1.0",
+  "license": "MIT",
+  "exports": "./src/index.ts",
+  "imports": {
+    "@tanstack/ai": "npm:@tanstack/ai@^1.8.0",
+    "@tanstack/ai/adapters": "npm:@tanstack/ai@^1.8.0/adapters"
+  },
+  "publish": {
+    "include": ["src/**/*.ts", "README.md", "LICENSE", "deno.json"]
+  },
+  "nodeModulesDir": "none"
+}
