@@ -10,11 +10,11 @@ export type ClefEvaluateModel = (typeof CLEF_EVALUATE_MODELS)[number]
  */
 export const CLEF_LIMITS = {
   /** Questions per request. */
-  maxQuestions: 16,
+  maxQuestions: 64,
   /** Characters in a question id or a choice key. */
   maxKeyLength: 128,
   /** Options of a choice question, or levels of a score question. */
-  maxCriteria: 32,
+  maxCriteria: 255,
   /** UTF-8 bytes of the JSON request body. */
-  maxBodyBytes: 32768,
+  maxBodyBytes: 262144,
 } as const

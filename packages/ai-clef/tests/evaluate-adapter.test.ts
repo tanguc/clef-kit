@@ -230,18 +230,21 @@ describe('validation before the network', () => {
           type: 'choice',
           instructions: 'x',
           criteria: Object.fromEntries(
-            Array.from({ length: 33 }, (_, i) => [`o${i}`, 'd']),
+            Array.from({ length: CLEF_LIMITS.maxCriteria + 1 }, (_, i) => [
+              `o${i}`,
+              'd',
+            ]),
           ),
         },
       },
-      /1-32 options/,
+      /1-255 options/,
     ],
     [
       'long question id',
       { ['x'.repeat(129)]: { type: 'noul', instructions: 'x' } },
       /1-128 characters/,
     ],
-    ['no questions', {}, /1-16 questions/],
+    ['no questions', {}, /1-64 questions/],
   ]
 
   for (const [name, qs, message] of cases) {
@@ -257,7 +260,7 @@ describe('validation before the network', () => {
     })
   }
 
-  it('refuses 17 questions', async () => {
+  it('refuses 65 questions', async () => {
     const qs = Object.fromEntries(
       Array.from({ length: CLEF_LIMITS.maxQuestions + 1 }, (_, i) => [
         `q${i}`,
@@ -283,7 +286,7 @@ describe('validation before the network', () => {
         options({ state: 'x'.repeat(CLEF_LIMITS.maxBodyBytes) }),
       ),
     )
-    expect(error.message).toMatch(/at most 32768/)
+    expect(error.message).toMatch(/at most 262144/)
   })
 })
 

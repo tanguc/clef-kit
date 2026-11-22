@@ -154,11 +154,11 @@ explicit, so they stay distinct.
 
 ### Criteria: option descriptions and levels
 
-| Question type        | Hosted API accepts                        | Clef accepts                     |
-| -------------------- | ----------------------------------------- | -------------------------------- |
-| `choice` options     | string, object, array or `null` per key   | non-empty string per key         |
-| `score` levels       | string, object, array or `null` per level | non-empty string per level, 2-32 |
-| `boolean` `criteria` | `true` / `false` descriptions             | not accepted, leave it out       |
+| Question type        | Hosted API accepts                        | Clef accepts                      |
+| -------------------- | ----------------------------------------- | --------------------------------- |
+| `choice` options     | string, object, array or `null` per key   | non-empty string per key          |
+| `score` levels       | string, object, array or `null` per level | non-empty string per level, 2-255 |
+| `boolean` `criteria` | `true` / `false` descriptions             | not accepted, leave it out        |
 
 The most useful pattern is contrastive criteria. Each option says what it covers, what it is not
 for, and gives an example, in the same order for every option. The hosted API takes this as an
@@ -234,7 +234,7 @@ You can change the weights later without changing the questions.
 ### Ask questions you might not need
 
 Questions in one request run together, so add the ones you may need later to the same call instead
-of making a second one. With Clef, the limit is 16 questions and 2048 input tokens per request
+of making a second one. With Clef, the limit is 64 questions and 16,384 input tokens per request
 (see [Limits](#limits)), so check that the extra questions still fit.
 
 ### Pick the right type
@@ -358,9 +358,10 @@ try {
   if (!isClefError(error)) throw error
   switch (error.detail ?? error.code) {
     case 'model_unavailable': // 503: Clef is not loaded right now, retry later
+    case 'worker_failed': // 503: the worker ran out of GPU memory, it reloads after 30 s
     case 'execution_timeout': // 504: the server took more than 30 s
       return retryLater()
-    case 'input_too_long': // state + questions are over 2048 tokens
+    case 'input_too_long': // state + questions are over 16,384 tokens
       return shortenState()
     default: // invalid_request: refused by the adapter before any network call
       throw error
@@ -373,19 +374,24 @@ limits are exported as `CLEF_LIMITS`.
 
 ## Limits
 
-| Limit                     | Clef                                         | Hosted API (for reference)          |
-| ------------------------- | -------------------------------------------- | ----------------------------------- |
-| Input tokens per request  | 2048, for `state` and all questions together | 64k per request, 32k per question   |
-| Questions per request     | 1-16                                         | no limit                            |
-| Request body              | 32 KiB                                       | 32 MiB                              |
-| Question ids, option keys | up to 128 characters                         |                                     |
-| Options or levels         | 1-32 options, 2-32 levels                    |                                     |
-| Numbers                   | finite only (no `NaN`, `Infinity`)           | finite only                         |
-| Run time                  | 30 s on the server, 35 s adapter timeout     |                                     |
-| Long context header       | not supported                                | `TypeSafe-Danger-Zone-Long-Context` |
+| Limit                     | Clef                                           | Hosted API (for reference)          |
+| ------------------------- | ---------------------------------------------- | ----------------------------------- |
+| Input tokens per request  | 16,384, for `state` and all questions together | 64k per request, 32k per question   |
+| Questions per request     | 1-64                                           | no limit                            |
+| Request body              | 256 KiB                                        | 32 MiB                              |
+| Question ids, option keys | up to 128 characters                           |                                     |
+| Options or levels         | 1-255 options, 2-255 levels                    |                                     |
+| Numbers                   | finite only (no `NaN`, `Infinity`)             | finite only                         |
+| Run time                  | 30 s on the server, 35 s adapter timeout       |                                     |
+| Long context header       | not supported                                  | `TypeSafe-Danger-Zone-Long-Context` |
 
-Instructions and option descriptions are sent with every request, so they use part of the 2048
-token budget each time. Keep them short, and send ids and large exact values as strings.
+Instructions and option descriptions are sent with every request, so they use part of the token
+budget each time.
+
+These are the limits of one self-hosted deployment, not of the model. clef-flash accepts up to 262K
+positions, but this server shares its GPU with a larger model, and 16,384 tokens is the largest input
+measured to fit beside it (about 2 s per evaluation). The adapter checks the values in `CLEF_LIMITS`,
+which match this deployment. Keep them short, and send ids and large exact values as strings.
 
 ## Differences from the hosted adapters
 
@@ -395,10 +401,10 @@ call, with a `ClefError` whose `code` is `invalid_request`:
 - `instructions` must be a non-empty string (no objects or arrays)
 - boolean questions take no `criteria`
 - every choice option needs a non-empty description
-- 1-16 questions, ids and option keys up to 128 characters, 1-32 options or levels
-- request body up to 32 KiB, no `NaN` or `Infinity` in `state`
+- 1-64 questions, ids and option keys up to 128 characters, 1-255 options or levels
+- request body up to 256 KiB, no `NaN` or `Infinity` in `state`
 
-The server also refuses requests over 2048 input tokens (`input_too_long`). See [Limits](#limits).
+The server also refuses requests over 16,384 input tokens (`input_too_long`). See [Limits](#limits).
 
 It also:
 
