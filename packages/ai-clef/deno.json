@@ -8,7 +8,22 @@
     "@tanstack/ai/adapters": "npm:@tanstack/ai@^1.8.0/adapters"
   },
   "publish": {
-    "include": ["src/**/*.ts", "README.md", "LICENSE", "deno.json"]
+    "include": [
+      "src/**/*.ts",
+      "README.md",
+      "LICENSE",
+      "deno.json"
+    ]
   },
-  "nodeModulesDir": "none"
+  "nodeModulesDir": "none",
+  "compilerOptions": {
+    "strict": true,
+    "noImplicitOverride": true,
+    "noUncheckedIndexedAccess": true,
+    "lib": [
+      "esnext",
+      "dom",
+      "dom.iterable"
+    ]
+  }
 }
